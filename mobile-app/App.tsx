@@ -9,8 +9,7 @@ type StopWatchDirection = 'asc' | 'desc';
 const toggleDirection: (direction: StopWatchDirection) => StopWatchDirection = (direction) => direction === 'asc' ? 'desc' : 'asc';
 
 export default () => {
-  const [initialTime, setInitialTime] = useState(0);
-  const [time, setTime] = useState(initialTime);
+  const [time, setTime] = useState(0);
   const [direction, setDirection] = useState<StopWatchDirection>('asc');
 
   useEffect(() => {
