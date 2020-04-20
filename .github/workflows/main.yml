@@ -17,6 +17,7 @@ jobs:
           expo-version: 3.x
           expo-username: ${{ secrets.EXPO_CLI_USERNAME }}
           expo-password: ${{ secrets.EXPO_CLI_PASSWORD }}
-      - run: cd mobile-app
-      - run: yarn install
-      - run: expo publish
+      - run: |
+          cd mobile-app
+          yarn install
+          expo publish
