@@ -30,6 +30,7 @@ exports.update = (req, res) => {
     return;
   }
 
+  //foo
   db.doc(`timers/${encodeURIComponent(id)}`).get()
     .then(snapshot => {
         const newState = { direction, lastUpdatedTime: Date.now(), previousValue: 0 };
