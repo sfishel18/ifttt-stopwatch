@@ -47,7 +47,7 @@ jobs:
     name: "[Backend] Deploy"
     runs-on: ubuntu-latest
     container: google/cloud-sdk:alpine
-    needs: Test
+    needs: backend-test
 
     steps:
       - uses: actions/checkout@v1
