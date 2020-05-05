@@ -8,6 +8,7 @@ const axios = require("axios");
 const doUpdate = (payload) => axios.post(`${API_URL}/update`, payload);
 const getStatus = (id) => axios.get(`${API_URL}/get?id=${id}`);
 const wait = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
+
 const { API_URL = "http://localhost:8080", DB_PORT = "8081" } = process.env;
 
 beforeAll(() => waitOn({ resources: [API_URL, `tcp:${DB_PORT}`] }));
