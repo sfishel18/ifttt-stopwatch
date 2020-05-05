@@ -13,6 +13,29 @@ const { API_URL = "http://localhost:8080", DB_PORT = "8081" } = process.env;
 
 beforeAll(() => waitOn({ resources: [API_URL, `tcp:${DB_PORT}`] }));
 
+describe("get function", () => {
+  test("bad request if id is missing", () => {
+    expect.assertions(2);
+    return getStatus("").catch((error) => {
+      expect(error.response.status).toEqual(400);
+      expect(error.response.data).toMatchInlineSnapshot(
+        `"Required argument \\"id\\" is missing or empty"`
+      );
+    });
+  });
+  test("default state if id has never been seen", () => {
+    expect.assertions(1);
+    return getStatus(`never-seen-before-${Date.now()}`).then((response) => {
+      expect(response.data).toMatchInlineSnapshot(`
+        Object {
+          "direction": "pause",
+          "previousValue": 0,
+        }
+      `);
+    });
+  });
+});
+
 describe("update function", () => {
   test("access denied if auth is wrong", () => {
     expect.assertions(2);
@@ -50,14 +73,16 @@ describe("update function", () => {
   test("up then pause", async () => {
     expect.assertions(5);
     const id = `up-then-pause-${Date.now()}`;
-    
+
     await doUpdate({
       auth: process.env.AUTH_KEY,
       id,
       direction: "up",
     });
     const upStatus = await getStatus(id);
-    expect(upStatus.data).toEqual(expect.objectContaining({ previousValue: 0, direction: "up" }));
+    expect(upStatus.data).toEqual(
+      expect.objectContaining({ previousValue: 0, direction: "up" })
+    );
     expect(upStatus.data.lastUpdatedTime).toBeLessThan(Date.now());
 
     await wait(2000);
@@ -68,20 +93,24 @@ describe("update function", () => {
     });
     const pausedStatus = await getStatus(id);
     expect(pausedStatus.data.direction).toEqual("pause");
-    expect(pausedStatus.data.lastUpdatedTime).toBeGreaterThan(upStatus.data.lastUpdatedTime);
+    expect(pausedStatus.data.lastUpdatedTime).toBeGreaterThan(
+      upStatus.data.lastUpdatedTime
+    );
     expect(pausedStatus.data.previousValue).toBeGreaterThan(2000);
   });
   test("down then pause", async () => {
     expect.assertions(5);
     const id = `down-then-pause-${Date.now()}`;
-    
+
     await doUpdate({
       auth: process.env.AUTH_KEY,
       id,
       direction: "down",
     });
     const downStatus = await getStatus(id);
-    expect(downStatus.data).toEqual(expect.objectContaining({ previousValue: 0, direction: "down" }));
+    expect(downStatus.data).toEqual(
+      expect.objectContaining({ previousValue: 0, direction: "down" })
+    );
     expect(downStatus.data.lastUpdatedTime).toBeLessThan(Date.now());
 
     await wait(2000);
@@ -92,21 +121,25 @@ describe("update function", () => {
     });
     const pausedStatus = await getStatus(id);
     expect(pausedStatus.data.direction).toEqual("pause");
-    expect(pausedStatus.data.lastUpdatedTime).toBeGreaterThan(downStatus.data.lastUpdatedTime);
+    expect(pausedStatus.data.lastUpdatedTime).toBeGreaterThan(
+      downStatus.data.lastUpdatedTime
+    );
     expect(pausedStatus.data.previousValue).toBeLessThan(-2000);
   });
   test("up then down then pause", async () => {
     jest.setTimeout(20000);
     expect.assertions(8);
     const id = `up-then-down-then-pause-${Date.now()}`;
-    
+
     await doUpdate({
       auth: process.env.AUTH_KEY,
       id,
       direction: "up",
     });
     const upStatus = await getStatus(id);
-    expect(upStatus.data).toEqual(expect.objectContaining({ previousValue: 0, direction: "up" }));
+    expect(upStatus.data).toEqual(
+      expect.objectContaining({ previousValue: 0, direction: "up" })
+    );
     expect(upStatus.data.lastUpdatedTime).toBeLessThan(Date.now());
 
     await wait(2000);
@@ -117,7 +150,9 @@ describe("update function", () => {
     });
     const downStatus = await getStatus(id);
     expect(downStatus.data.direction).toEqual("down");
-    expect(downStatus.data.lastUpdatedTime).toBeGreaterThan(upStatus.data.lastUpdatedTime);
+    expect(downStatus.data.lastUpdatedTime).toBeGreaterThan(
+      upStatus.data.lastUpdatedTime
+    );
     expect(downStatus.data.previousValue).toBeGreaterThan(2000);
 
     await wait(4000);
@@ -128,21 +163,25 @@ describe("update function", () => {
     });
     const pauseStatus = await getStatus(id);
     expect(pauseStatus.data.direction).toEqual("pause");
-    expect(pauseStatus.data.lastUpdatedTime).toBeGreaterThan(downStatus.data.lastUpdatedTime);
+    expect(pauseStatus.data.lastUpdatedTime).toBeGreaterThan(
+      downStatus.data.lastUpdatedTime
+    );
     expect(pauseStatus.data.previousValue).toBeLessThan(-1000);
   });
   test("down then up then pause", async () => {
     jest.setTimeout(20000);
     expect.assertions(8);
     const id = `down-then-up-then-pause-${Date.now()}`;
-    
+
     await doUpdate({
       auth: process.env.AUTH_KEY,
       id,
       direction: "down",
     });
     const downStatus = await getStatus(id);
-    expect(downStatus.data).toEqual(expect.objectContaining({ previousValue: 0, direction: "down" }));
+    expect(downStatus.data).toEqual(
+      expect.objectContaining({ previousValue: 0, direction: "down" })
+    );
     expect(downStatus.data.lastUpdatedTime).toBeLessThan(Date.now());
 
     await wait(2000);
@@ -153,7 +192,9 @@ describe("update function", () => {
     });
     const upStatus = await getStatus(id);
     expect(upStatus.data.direction).toEqual("up");
-    expect(upStatus.data.lastUpdatedTime).toBeGreaterThan(downStatus.data.lastUpdatedTime);
+    expect(upStatus.data.lastUpdatedTime).toBeGreaterThan(
+      downStatus.data.lastUpdatedTime
+    );
     expect(upStatus.data.previousValue).toBeLessThan(-2000);
 
     await wait(4000);
@@ -164,7 +205,9 @@ describe("update function", () => {
     });
     const pauseStatus = await getStatus(id);
     expect(pauseStatus.data.direction).toEqual("pause");
-    expect(pauseStatus.data.lastUpdatedTime).toBeGreaterThan(upStatus.data.lastUpdatedTime);
+    expect(pauseStatus.data.lastUpdatedTime).toBeGreaterThan(
+      upStatus.data.lastUpdatedTime
+    );
     expect(pauseStatus.data.previousValue).toBeGreaterThan(1000);
   });
 });
