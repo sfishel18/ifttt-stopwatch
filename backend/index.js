@@ -30,13 +30,12 @@ exports.update = (req, res) => {
     return;
   }
 
-  //foo
   db.doc(`timers/${encodeURIComponent(id)}`).get()
     .then(snapshot => {
         const newState = { direction, lastUpdatedTime: Date.now(), previousValue: 0 };
         if (snapshot.exists) {
             const previousDirection = snapshot.get('direction');
-            if (previousDirection === 'paused') {
+            if (previousDirection === 'pause') {
               newState.previousValue = snapshot.get('previousValue')
             } else if (previousDirection === 'up') {
               newState.previousValue = snapshot.get('previousValue') + (newState.lastUpdatedTime - snapshot.get('lastUpdatedTime'))
@@ -66,7 +65,7 @@ exports.get = (req, res) => {
   db.doc(`timers/${encodeURIComponent(id)}`).get()
     .then(snapshot => {
       if (!snapshot.exists) {
-        return { direction: 'paused', previousValue: 0 }
+        return { direction: 'pause', previousValue: 0 }
       }
       return snapshot.data();
     })
