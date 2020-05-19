@@ -12,7 +12,11 @@ const directions = [
 ];
 
 exports.update = (req, res) => {
-  if (req.method === "HEAD") {
+  res.set({
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type'
+  });
+  if (req.method === "HEAD" || req.method === "OPTIONS") {
     res.status(200).send();
     return;
   }
@@ -53,7 +57,11 @@ exports.update = (req, res) => {
 };
 
 exports.get = (req, res) => {
-  if (req.method === "HEAD") {
+  res.set({
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type'
+  });
+  if (req.method === "HEAD" || req.method === "OPTIONS") {
     res.status(200).send();
     return;
   }
