@@ -1,32 +1,38 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
+import { AsyncStorage, Alert, Text } from 'react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
-import StopWatch from './components/StopWatch';
+import { StopWatchState } from './types';
+import StopWatchWrapper from './components/StopWatchWrapper';
 
 ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
 
-type StopWatchDirection = 'asc' | 'desc';
-
-const toggleDirection: (direction: StopWatchDirection) => StopWatchDirection = (direction) => direction === 'asc' ? 'desc' : 'asc';
-
 export default () => {
-  const [time, setTime] = useState(0);
-  const [direction, setDirection] = useState<StopWatchDirection>('asc');
-
+  const [id, setId] = useState<String | null>(null);
   useEffect(() => {
-    let previousTime = Date.now();
-    const interval = setInterval(() => {
-      const now = Date.now()
-      const delta = now - previousTime;
-      previousTime = now;
-      setTime(t => direction === 'asc' ? t + delta : t - delta);
-    }, 100);
-    return () => clearInterval(interval)
-  }, [direction]);
+    AsyncStorage.getItem('@stopWatchId').then(storedId => {
+      if (storedId === null) {
+        Alert.prompt('Enter a stopwatch ID', undefined, newId => {
+          setId(id);
+          AsyncStorage.setItem('@stopWatchId', newId);
+        });
+      } else {
+        setId(storedId);
+      }
+    });
+  }, []);
 
-  const onPress = useCallback(
-    () => setDirection(toggleDirection(direction)), 
-    [setDirection, direction]
-  );
+  const [stopWatchState, setStopWatchState] = useState<StopWatchState | null>(null);
+  useEffect(() => {
+    if (id === null) {
+      return;
+    }
+    fetch(`https://us-central1-ifttt-stopwatch.cloudfunctions.net/get?id=${id}`)
+      .then(response => response.json())
+      .then(setStopWatchState)
+  }, [id]);
 
-  return <StopWatch time={time} onPress={onPress} />;
-};
+  if (stopWatchState === null) {
+    return null;
+  }
+  return <StopWatchWrapper {...stopWatchState} direction="up" lastUpdatedTime={Date.now() - 60000} previousValue={-2 * 60000} />;
+}
