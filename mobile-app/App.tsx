@@ -26,13 +26,17 @@ export default () => {
     if (id === null) {
       return;
     }
-    fetch(`https://us-central1-ifttt-stopwatch.cloudfunctions.net/get?id=${id}`)
-      .then(response => response.json())
-      .then(setStopWatchState)
+    const interval = setInterval(() => {
+      fetch(`https://us-central1-ifttt-stopwatch.cloudfunctions.net/get?id=${id}`)
+        .then(response => response.json())
+        .then(setStopWatchState);
+    }, 5000);
+    
+    return () => clearInterval(interval);
   }, [id]);
 
   if (stopWatchState === null) {
     return null;
   }
-  return <StopWatchWrapper {...stopWatchState} direction="up" lastUpdatedTime={Date.now() - 60000} previousValue={-2 * 60000} />;
+  return <StopWatchWrapper {...stopWatchState} />;
 }
