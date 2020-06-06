@@ -4,8 +4,6 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 import { StopWatchState } from './types';
 import StopWatchWrapper from './components/StopWatchWrapper';
 
-ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-
 export default () => {
   const [id, setId] = useState<String | null>(null);
   useEffect(() => {
@@ -26,12 +24,14 @@ export default () => {
     if (id === null) {
       return;
     }
-    const interval = setInterval(() => {
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+    const fetchStopWatchState = () => {
       fetch(`https://us-central1-ifttt-stopwatch.cloudfunctions.net/get?id=${id}`)
         .then(response => response.json())
         .then(setStopWatchState);
-    }, 5000);
-    
+    }
+    fetchStopWatchState();
+    const interval = setInterval(fetchStopWatchState, 5000);
     return () => clearInterval(interval);
   }, [id]);
 

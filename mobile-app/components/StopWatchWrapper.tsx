@@ -5,7 +5,7 @@ import { StopWatchState } from '../types';
 const StopWatchWrapper: React.FC<StopWatchState> = ({ direction, lastUpdatedTime, previousValue }) => {
 
   const computeCurrentTime = () => {
-    if (lastUpdatedTime == null) {
+    if (lastUpdatedTime == null || direction === 'pause') {
       return previousValue;
     }
     const timeSinceUpdate = Date.now() - lastUpdatedTime;
