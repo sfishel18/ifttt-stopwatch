@@ -5,14 +5,13 @@ import { StopWatchState } from './types';
 import StopWatchWrapper from './components/StopWatchWrapper';
 import IdPrompt from './components/IdPrompt';
 
-ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-
 export default () => {
   const [id, setId] = useState<String | null>(null);
   useEffect(() => {
     AsyncStorage.clear();
     AsyncStorage.getItem('@stopWatchId').then(storedId => {
       if (storedId !== null) {
+        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
         setId(storedId);
       }
     });
