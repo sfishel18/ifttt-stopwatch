@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { AsyncStorage, Alert, Text } from 'react-native';
+import { AsyncStorage } from 'react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { StopWatchState } from './types';
 import StopWatchWrapper from './components/StopWatchWrapper';
+import IdPrompt from './components/IdPrompt';
+
+ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
 
 export default () => {
   const [id, setId] = useState<String | null>(null);
   useEffect(() => {
+    AsyncStorage.clear();
     AsyncStorage.getItem('@stopWatchId').then(storedId => {
-      if (storedId === null) {
-        Alert.prompt('Enter a stopwatch ID', undefined, newId => {
-          setId(id);
-          AsyncStorage.setItem('@stopWatchId', newId);
-        });
-      } else {
+      if (storedId !== null) {
         setId(storedId);
       }
     });
@@ -24,7 +23,6 @@ export default () => {
     if (id === null) {
       return;
     }
-    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
     const fetchStopWatchState = () => {
       fetch(`https://us-central1-ifttt-stopwatch.cloudfunctions.net/get?id=${id}`)
         .then(response => response.json())
@@ -35,6 +33,9 @@ export default () => {
     return () => clearInterval(interval);
   }, [id]);
 
+  if (id === null) {
+    return <IdPrompt onSubmit={setId} />
+  }
   if (stopWatchState === null) {
     return null;
   }
