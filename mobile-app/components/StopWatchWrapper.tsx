@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
+import { TouchableWithoutFeedback, AsyncStorage } from 'react-native';
 import StopWatch from './StopWatch';
 import { StopWatchState } from '../types';
 
@@ -27,7 +28,11 @@ const StopWatchWrapper: React.FC<StopWatchState> = ({ direction, lastUpdatedTime
     return () => clearInterval(interval)
   }, [direction]);
 
-  return <StopWatch time={time} />;
+  return (
+    <TouchableWithoutFeedback onLongPress={() => AsyncStorage.clear()} delayLongPress={5000}>
+      <StopWatch time={time} />
+    </TouchableWithoutFeedback>)
+  ;
 }
 
 export default StopWatchWrapper;

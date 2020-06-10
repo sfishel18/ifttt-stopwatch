@@ -8,10 +8,8 @@ import IdPrompt from './components/IdPrompt';
 export default () => {
   const [id, setId] = useState<String | null>(null);
   useEffect(() => {
-    AsyncStorage.clear();
     AsyncStorage.getItem('@stopWatchId').then(storedId => {
       if (storedId !== null) {
-        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
         setId(storedId);
       }
     });
@@ -22,6 +20,7 @@ export default () => {
     if (id === null) {
       return;
     }
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
     const fetchStopWatchState = () => {
       fetch(`https://us-central1-ifttt-stopwatch.cloudfunctions.net/get?id=${id}`)
         .then(response => response.json())
